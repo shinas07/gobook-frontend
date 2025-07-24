@@ -1,6 +1,6 @@
 // components/BookGrid.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
 interface Book {
   id: string;
@@ -18,8 +18,9 @@ interface BookGridProps {
 }
 
 export default function BookGrid({ title, books, onBookPress }: BookGridProps) {
-  const renderBookCard = ({ item }: { item: Book }) => (
+  const renderBookCard = (item: Book) => (
     <TouchableOpacity
+      key={item.id}
       style={styles.bookCard}
       onPress={() => onBookPress(item)}
     >
@@ -43,17 +44,28 @@ export default function BookGrid({ title, books, onBookPress }: BookGridProps) {
     </TouchableOpacity>
   );
 
+  // Create rows of 2 books each
+  const createRows = () => {
+    const rows = [];
+    for (let i = 0; i < books.length; i += 2) {
+      const rowBooks = books.slice(i, i + 2);
+      rows.push(
+        <View key={i} style={styles.bookRow}>
+          {rowBooks.map(book => renderBookCard(book))}
+          {/* Add empty placeholder if odd number of books */}
+          {rowBooks.length === 1 && <View style={styles.bookCard} />}
+        </View>
+      );
+    }
+    return rows;
+  };
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
-      <FlatList
-        data={books}
-        renderItem={renderBookCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.bookRow}
-        scrollEnabled={false}
-      />
+      <View style={styles.booksContainer}>
+        {createRows()}
+      </View>
     </View>
   );
 }
@@ -69,15 +81,19 @@ const styles = StyleSheet.create({
     color: '#8b5cf6', // Purple color to match "Your Shelf" text
     marginBottom: 16,
   },
+  booksContainer: {
+    flex: 1,
+  },
   bookRow: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 16,
   },
   bookCard: {
     backgroundColor: '#f8fafc',
     borderRadius: 16,
     padding: 16,
     width: '48%',
-    marginBottom: 16,
   },
   bookCover: {
     width: '100%',
