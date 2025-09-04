@@ -22,7 +22,7 @@ export default function BookGrid({ title, books, onBookPress }: BookGridProps) {
     <TouchableOpacity
       key={item.id}
       style={styles.bookCard}
-      onPress={() => onBookPress(item)}
+      onPress={() => onBookPress(item)} 
     >
       <Image
         source={{ uri: item.cover_url }}
