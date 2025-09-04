@@ -1,4 +1,4 @@
-// app/reader.tsx
+// app/reader.tsx - Dark Design
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,12 +8,30 @@ import {
   StyleSheet,
   SafeAreaView,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { dummyBooks } from '@/services/api';
 
 const { width } = Dimensions.get('window');
+
+const colors = {
+  background: '#0a0a0a',
+  surface: '#1a1a1a',
+  card: '#2a2a2a',
+  primary: '#3b82f6',
+  secondary: '#8b5cf6',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  text: '#ffffff',
+  textSecondary: '#a1a1aa',
+  textMuted: '#71717a',
+  border: '#374151',
+};
 
 interface Book {
   id: string;
@@ -34,7 +52,7 @@ export default function ReaderScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(100);
   const [fontSize, setFontSize] = useState(16);
-  const [isAIContent, setIsAIContent] = useState(false); // Toggle between AI and original content
+  const [isAIContent, setIsAIContent] = useState(false);
 
   // Sample book content - in real app, this would come from PDF/ebook file
   const originalContent = `
@@ -102,11 +120,19 @@ That fateful day taught me that certain infections resist all cures—they can o
 
   if (!book) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.center}>
-          <Text>Book not found</Text>
-        </View>
-      </SafeAreaView>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <LinearGradient
+          colors={[colors.background, '#1a1a2e', colors.background]}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.center}>
+            <Ionicons name="book" size={64} color={colors.textMuted} />
+            <Text style={styles.notFoundText}>Book not found</Text>
+          </View>
+        </SafeAreaView>
+      </View>
     );
   }
 
@@ -125,120 +151,189 @@ That fateful day taught me that certain infections resist all cures—they can o
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1f2937" />
-        </TouchableOpacity>
-        
-        <View style={styles.headerInfo}>
-          <Text style={styles.bookTitle} numberOfLines={1}>
-            {book.title}
-          </Text>
-          <Text style={styles.timeLeft}>20 mins left in Chapter</Text>
-        </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
+      {/* Background Gradient */}
+      <LinearGradient
+        colors={[colors.background, '#1a1a2e', colors.background]}
+        style={StyleSheet.absoluteFillObject}
+      />
 
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.fontButton} onPress={() => setFontSize(Math.max(12, fontSize - 2))}>
-            <Text style={styles.fontButtonText}>A-</Text>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
+        <Animated.View entering={FadeInUp.delay(100)} style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.fontButton} onPress={() => setFontSize(Math.min(24, fontSize + 2))}>
-            <Text style={styles.fontButtonText}>A+</Text>
+          
+          <View style={styles.headerInfo}>
+            <Text style={styles.bookTitle} numberOfLines={1}>
+              {book.title}
+            </Text>
+            <Text style={styles.timeLeft}>20 mins left in Chapter</Text>
+          </View>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.fontButton} 
+              onPress={() => setFontSize(Math.max(12, fontSize - 2))}
+            >
+              <Text style={styles.fontButtonText}>A-</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.fontButton} 
+              onPress={() => setFontSize(Math.min(24, fontSize + 2))}
+            >
+              <Text style={styles.fontButtonText}>A+</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* Progress Bar */}
+        <Animated.View entering={FadeInUp.delay(200)} style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <LinearGradient
+              colors={[colors.secondary, colors.primary]}
+              style={[styles.progressFill, { width: `${progress}%` }]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          </View>
+          <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+        </Animated.View>
+
+        {/* Content Toggle */}
+        <Animated.View entering={FadeInUp.delay(300)} style={styles.contentToggle}>
+          <TouchableOpacity
+            style={[styles.toggleOption, !isAIContent && styles.toggleOptionActive]}
+            onPress={() => setIsAIContent(false)}
+          >
+            {!isAIContent ? (
+              <LinearGradient
+                colors={[colors.secondary, colors.primary]}
+                style={styles.toggleGradient}
+              >
+                <Ionicons name="document-text" size={16} color="#fff" />
+                <Text style={styles.toggleTextActive}>Original</Text>
+              </LinearGradient>
+            ) : (
+              <View style={styles.toggleContent}>
+                <Ionicons name="document-text-outline" size={16} color={colors.textMuted} />
+                <Text style={styles.toggleText}>Original</Text>
+              </View>
+            )}
           </TouchableOpacity>
-        </View>
-      </View>
+          
+          <TouchableOpacity
+            style={[styles.toggleOption, isAIContent && styles.toggleOptionActive]}
+            onPress={() => setIsAIContent(true)}
+          >
+            {isAIContent ? (
+              <LinearGradient
+                colors={[colors.secondary, colors.primary]}
+                style={styles.toggleGradient}
+              >
+                <Ionicons name="sparkles" size={16} color="#fff" />
+                <Text style={styles.toggleTextActive}>AI Enhanced</Text>
+              </LinearGradient>
+            ) : (
+              <View style={styles.toggleContent}>
+                <Ionicons name="sparkles-outline" size={16} color={colors.textMuted} />
+                <Text style={styles.toggleText}>AI Enhanced</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
 
-      {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
-        </View>
-        <Text style={styles.progressText}>{Math.round(progress)}%</Text>
-      </View>
+        {/* Book Content */}
+        <Animated.View entering={FadeInUp.delay(400)} style={styles.contentContainer}>
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            <Text style={[styles.contentText, { fontSize, color: colors.textSecondary }]}>
+              {currentContent}
+            </Text>
+          </ScrollView>
+        </Animated.View>
 
-      {/* Content Toggle */}
-      <View style={styles.contentToggle}>
-        <TouchableOpacity
-          style={[styles.toggleOption, !isAIContent && styles.toggleOptionActive]}
-          onPress={() => setIsAIContent(false)}
-        >
-          <Ionicons name="document-text-outline" size={16} color={!isAIContent ? '#8b5cf6' : '#9ca3af'} />
-          <Text style={[styles.toggleText, !isAIContent && styles.toggleTextActive]}>
-            Original
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.toggleOption, isAIContent && styles.toggleOptionActive]}
-          onPress={() => setIsAIContent(true)}
-        >
-          <Ionicons name="sparkles" size={16} color={isAIContent ? '#8b5cf6' : '#9ca3af'} />
-          <Text style={[styles.toggleText, isAIContent && styles.toggleTextActive]}>
-            AI Enhanced
-          </Text>
-        </TouchableOpacity>
-      </View>
+        {/* Navigation */}
+        <Animated.View entering={FadeInDown.delay(500)} style={styles.navigation}>
+          <TouchableOpacity
+            style={[styles.navButton, currentPage === 1 && styles.navButtonDisabled]}
+            onPress={previousPage}
+            disabled={currentPage === 1}
+          >
+            <View style={styles.navButtonContent}>
+              <Ionicons name="chevron-back" size={20} color={currentPage === 1 ? colors.textMuted : colors.primary} />
+              <Text style={[styles.navButtonText, { color: currentPage === 1 ? colors.textMuted : colors.primary }]}>
+                Previous
+              </Text>
+            </View>
+          </TouchableOpacity>
 
-      {/* Book Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.contentText, { fontSize }]}>
-          {currentContent}
-        </Text>
-      </ScrollView>
+          <View style={styles.pageInfoContainer}>
+            <Text style={styles.pageInfo}>
+              Page {currentPage} of {totalPages}
+            </Text>
+            <Text style={styles.chapterInfo}>Chapter 1</Text>
+          </View>
 
-      {/* Navigation */}
-      <View style={styles.navigation}>
-        <TouchableOpacity
-          style={[styles.navButton, currentPage === 1 && styles.navButtonDisabled]}
-          onPress={previousPage}
-          disabled={currentPage === 1}
-        >
-          <Text style={styles.navButtonText}>Previous</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.pageInfo}>
-          Page {currentPage} of {totalPages}
-        </Text>
-
-        <TouchableOpacity
-          style={[styles.navButton, currentPage === totalPages && styles.navButtonDisabled]}
-          onPress={nextPage}
-          disabled={currentPage === totalPages}
-        >
-          <Text style={styles.navButtonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          <TouchableOpacity
+            style={[styles.navButton, currentPage === totalPages && styles.navButtonDisabled]}
+            onPress={nextPage}
+            disabled={currentPage === totalPages}
+          >
+            <View style={[styles.navButtonContent, { flexDirection: 'row-reverse' }]}>
+              <Ionicons name="chevron-forward" size={20} color={currentPage === totalPages ? colors.textMuted : colors.primary} />
+              <Text style={[styles.navButtonText, { color: currentPage === totalPages ? colors.textMuted : colors.primary }]}>
+                Next
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
+  },
+  safeArea: {
+    flex: 1,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  notFoundText: {
+    fontSize: 18,
+    color: colors.textMuted,
+    marginTop: 16,
+    fontWeight: '600',
+  },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -248,125 +343,166 @@ const styles = StyleSheet.create({
   },
   bookTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 2,
   },
   timeLeft: {
     fontSize: 12,
-    color: '#6b7280',
-    marginTop: 2,
+    color: colors.textMuted,
+    fontWeight: '500',
   },
   headerActions: {
     flexDirection: 'row',
+    gap: 8,
   },
   fontButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
   },
   fontButtonText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#6b7280',
+    fontWeight: '700',
+    color: colors.primary,
   },
+
+  // Progress
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#f9fafb',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   progressBar: {
     flex: 1,
-    height: 4,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 2,
-    marginRight: 12,
+    height: 6,
+    backgroundColor: colors.card,
+    borderRadius: 3,
+    marginRight: 16,
+    overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#8b5cf6',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   progressText: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
-    minWidth: 30,
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '700',
+    minWidth: 40,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-  },
-  contentText: {
-    lineHeight: 28,
-    color: '#374151',
-    textAlign: 'justify',
-  },
-  navigation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-  },
-  navButton: {
-    backgroundColor: '#8b5cf6',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  navButtonDisabled: {
-    backgroundColor: '#e5e7eb',
-  },
-  navButtonText: {
-    color: '#fff',
-    fontWeight: '500',
-  },
+
+  // Toggle
   contentToggle: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: 24,
     marginVertical: 16,
-    backgroundColor: '#f9fafb',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     padding: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   toggleOption: {
     flex: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  toggleOptionActive: {
+    // Active styles handled by gradient
+  },
+  toggleGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    gap: 6,
   },
-  toggleOptionActive: {
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  toggleContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 6,
   },
   toggleText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#9ca3af',
-    marginLeft: 6,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  toggleTextActive: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fff',
+  },
+
+  // Content
+  contentContainer: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+  },
+  contentText: {
+    lineHeight: 28,
+    textAlign: 'justify',
+    fontWeight: '400',
+  },
+
+  // Navigation
+  navigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  navButton: {
+    flex: 1,
+    maxWidth: 100,
+  },
+  navButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  navButtonDisabled: {
+    opacity: 0.5,
+  },
+  navButtonText: {
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  pageInfoContainer: {
+    alignItems: 'center',
+    flex: 1,
   },
   pageInfo: {
-    fontSize: 14,
-    color: '#6b7280',
+    fontSize: 16,
+    color: colors.text,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  chapterInfo: {
+    fontSize: 12,
+    color: colors.textMuted,
     fontWeight: '500',
   },
 });
