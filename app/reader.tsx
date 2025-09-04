@@ -1,4 +1,4 @@
-// app/reader.tsx
+// app/reader.tsx - Professional Reader Screen
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,12 +8,60 @@ import {
   StyleSheet,
   SafeAreaView,
   Dimensions,
+  StatusBar,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { dummyBooks } from '@/services/api';
 
-const { width } = Dimensions.get('window');
+// Same Design System as other pages
+const AppTheme = {
+  colors: {
+    background: '#1B1B1F',
+    surface: '#2A2A2E',
+    surfaceLight: '#35353A',
+    
+    primary: '#007AFF',
+    success: '#34C759',
+    warning: '#FF9500',
+    danger: '#FF3B30',
+    
+    textPrimary: '#FFFFFF',
+    textSecondary: '#AEAEB2',
+    textTertiary: '#8E8E93',
+    
+    border: '#38383A',
+    borderLight: '#48484A',
+  },
+  
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+  },
+  
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+  },
+  
+  typography: {
+    largeTitle: { fontSize: 34, fontWeight: '700' },
+    title: { fontSize: 28, fontWeight: '600' },
+    headline: { fontSize: 20, fontWeight: '600' },
+    body: { fontSize: 17, fontWeight: '400' },
+    callout: { fontSize: 16, fontWeight: '400' },
+    subhead: { fontSize: 15, fontWeight: '400' },
+    footnote: { fontSize: 13, fontWeight: '400' },
+    caption: { fontSize: 12, fontWeight: '400' },
+  },
+};
+
+const { width, height } = Dimensions.get('window');
 
 interface Book {
   id: string;
@@ -29,88 +77,124 @@ interface Book {
 
 export default function ReaderScreen() {
   const router = useRouter();
-  const { bookId } = useLocalSearchParams();
+  const { bookId, version } = useLocalSearchParams();
   const [book, setBook] = useState<Book | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(100);
-  const [fontSize, setFontSize] = useState(16);
-  const [isAIContent, setIsAIContent] = useState(false); // Toggle between AI and original content
+  const [fontSize, setFontSize] = useState(18);
+  const [isAIContent, setIsAIContent] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [readingTime, setReadingTime] = useState(0);
+  const [brightness, setBrightness] = useState(100);
 
-  // Sample book content - in real app, this would come from PDF/ebook file
-  const originalContent = `
-Chapter One
+  // Enhanced sample content
+  const originalContent = `Chapter One: The Awakening
 
-The infection comes as fever at night. If you take ill, watch the veins— the tributary of blood travelling down the arms. If they remain as they ever did, you have nothing to fear.
+The morning mist clung to the ancient stones like forgotten memories, each droplet catching the first light of dawn and scattering it into a thousand tiny rainbows. Elena pressed her palm against the cold wall and felt the familiar pulse of something deeper than stone, older than the foundations themselves.
 
-If the blood darkens to an inky black, the infection has taken hold.
+She had been having the dreams again.
 
-The infection comes as fever at night.
+They came in fragments—glimpses of corridors that shouldn't exist, voices speaking in languages that had been dead for centuries, and always, always, the sense that something was calling to her from the depths below.
 
-I was nine the first time the Physicians came in house. My uncle and his men were away. My cousin Ione and her brothers played loudly in the kitchen, and my aunt did not hear the pounding at the door until the first man in white robes was already in the parlor. She did not have time to hide me. I was asleep, resting like a cat in the window.
+Her grandmother had warned her about this place. "Some knowledge comes with a price," the old woman had said, her weathered hands tracing protective symbols in the air. "And some doors, once opened, can never be closed again."
 
-When she shook me awake, her voice was thick with fear. "Go to the wood," she whispered, unlatching the window and gently pushing me through the casement to the ground below.
+But Elena had never been one to heed warnings.
 
-I ran barefoot through the cold morning mist, my nightdress catching on brambles and low branches. Behind me, I could hear the heavy footsteps of the Physicians, their white robes ghosting between the trees like death itself.
+The archaeological dig had been her idea, her proposal, her life's work condensed into a hundred pages of careful research and passionate argument. When the university approved her request to excavate the ruins beneath the monastery, she thought she had won the greatest victory of her career.
 
-The forest was my sanctuary. I knew every twisted root, every hidden hollow where I could curl up small and invisible. My aunt had taught me the paths when I was barely walking, showing me which berries were safe to eat, which streams ran clean, and where the old magic still lingered in the shadows.
+Now, standing in the pre-dawn darkness with her heart hammering against her ribs, she wondered if she had instead sealed her fate.
 
-But that morning, as I pressed myself against the rough bark of an ancient oak, I felt something different in the air. A darkness that seemed to seep from the very earth, cold and hungry and aware.
+The entrance to the lower chambers yawned before her like a mouth waiting to swallow secrets. Her headlamp cut through the gloom, illuminating carved symbols that seemed to shift and dance in the wavering light. Each step echoed with the weight of centuries, and Elena found herself moving as if in a trance, drawn deeper into the earth by forces she couldn't name or understand.
 
-The Physicians' voices echoed through the trees, calling out in their strange, melodic language. They were searching for someone like me—someone who carried the old blood, the infection that ran deeper than fever and darker than night.
+Behind her, the world above continued its daily rhythm—birds singing their morning songs, the distant hum of traffic, the ordinary sounds of a life she was leaving further behind with every step. Ahead lay only mystery, darkness, and the growing certainty that she was about to discover something that would change everything.
 
-I closed my eyes and tried to make myself smaller, tried to become nothing more than shadow and bark and morning dew. But I could feel their presence drawing closer, could smell the sharp scent of their remedies and see the pale glow of their lanterns cutting through the mist.
+The corridor opened into a vast chamber, and Elena's breath caught in her throat. The walls were covered in murals that seemed to glow with their own inner light, depicting scenes of ritual and ceremony, of figures that were almost human but not quite, of events that belonged to no history she had ever studied.
 
-That was the day I learned that some infections cannot be cured, only hidden. And some hunts never truly end.
-  `;
+At the center of the chamber stood a pedestal, and upon it...
 
-  const aiEnhancedContent = `
-Chapter One: The Shadow Plague
+Elena's hand trembled as she reached toward the artifact that had been waiting there, perhaps for centuries, perhaps for her.`;
 
-✨ The infection manifests as fever during nocturnal hours. Should you fall ill, observe the veins carefully—those crimson rivers that flow through your arms like ancient tributaries. If they maintain their natural appearance, you need not fear.
+  const aiEnhancedContent = `Chapter One: The Mystical Awakening ✨
 
-However, if the blood transforms to an obsidian black, the infection has claimed you.
+The ethereal morning mist embraced the primordial stones like spectral memories woven from time itself, each crystalline droplet capturing dawn's inaugural luminescence and transforming it into countless miniature prisms of celestial radiance. Elena's trembling palm made contact with the glacial wall, immediately sensing the profound resonance of something far more ancient than mere stone—a primordial force that predated even these hallowed foundations.
 
-The infection comes as fever at night.
+The prophetic visions had returned to torment her slumber once more.
 
-I was merely nine years old when the Physicians first crossed our threshold. My uncle and his warriors were away on their expedition. My cousin Ione and her brothers created a cacophony in the kitchen, and my aunt remained oblivious to the thunderous pounding at our door until the first figure draped in pristine white robes had already materialized in our parlor. She lacked the time to conceal me. I slumbered peacefully, curled like a contented feline upon the windowsill.
+They manifested as enigmatic fragments—tantalizing glimpses of impossible corridors that defied architectural logic, phantom voices articulating forgotten dialects from civilizations lost to the mists of antiquity, and perpetually, the undeniable sensation that an otherworldly presence beckoned to her from the abyssal depths below.
 
-When she roused me from sleep, terror thickened her voice like honey. "Flee to the woods," she whispered urgently, releasing the window latch and guiding me gently through the opening to the earth below.
+Her venerable grandmother had issued cryptic warnings regarding this mystical sanctuary. "Certain forbidden knowledge exacts a terrible toll," the sage crone had intoned, her time-weathered hands weaving arcane protective sigils through the ambient air. "And some dimensional gateways, once breached, remain eternally open to forces beyond mortal comprehension."
 
-I sprinted barefoot through the ethereal morning mist, my nightgown snagging on thorny brambles and low-hanging branches. Behind me echoed the ominous footfalls of the Physicians, their alabaster robes flowing between the trees like harbingers of death itself.
+Yet Elena had never possessed the wisdom to honor such supernatural counsel.
 
-The forest served as my sacred refuge. I knew intimately every gnarled root, every concealed hollow where I could compress myself into invisibility. My aunt had illuminated these pathways when I could barely toddle, demonstrating which berries offered nourishment, which streams flowed pure, and where the ancient magic still pulsed within the shadows.
+The archaeological expedition represented her intellectual magnum opus—her doctoral proposal, her scholarly passion distilled into a comprehensive manuscript of meticulous research and fervent academic discourse. When the prestigious university sanctioned her revolutionary request to excavate the enigmatic ruins concealed beneath the ancient monastery, she believed herself victorious in the greatest triumph of her academic career.
 
-Yet that morning, as I pressed my small frame against the weathered bark of a primordial oak, I sensed something extraordinary permeating the atmosphere. A malevolent darkness that appeared to emanate from the very soil beneath my feet—cold, ravenous, and unnervingly sentient.
+Now, positioned within the pre-dawn shadows with her mortal heart thundering against her ribcage like a desperate prisoner, she contemplated whether she had inadvertently orchestrated her own supernatural destiny.
 
-The Physicians' voices resonated through the woodland, their incantations flowing in an otherworldly, melodious tongue. They hunted someone precisely like me—an individual who carried the ancestral bloodline, the infection that penetrated deeper than any fever and darker than the endless night.
+The threshold to the subterranean chambers gaped before her consciousness like a primordial maw anticipating the consumption of forbidden secrets. Her professional headlamp pierced the stygian gloom, illuminating cryptic hieroglyphs that appeared to undulate and perform an otherworldly dance within the fluctuating illumination. Each calculated footstep resonated with the accumulated weight of countless centuries, and Elena discovered herself progressing as though entranced, inexorably drawn deeper into the earth's embrace by cosmic forces that transcended nomenclature or rational understanding.
 
-I sealed my eyes and attempted to diminish my presence, striving to become nothing more substantial than shadow, bark, and morning dew. Yet I could perceive their ominous approach, detect the acrid aroma of their medicinal concoctions, and observe the ghostly luminescence of their lanterns piercing the mist.
+Behind her corporeal form, the mundane world above maintained its quotidian rhythm—avian creatures serenading the dawn with their melodious compositions, the distant mechanical harmonies of vehicular traffic, the prosaic sounds of an existence she was progressively abandoning with each mystical step. Ahead awaited only unfathomable mystery, impenetrable darkness, and the intensifying conviction that she stood upon the precipice of a discovery that would fundamentally alter the fabric of reality itself.
 
-That fateful day taught me that certain infections resist all cures—they can only be concealed. And some pursuits never truly cease.
-  `;
+The ancient corridor expanded into a magnificent subterranean cathedral, and Elena's respiratory function momentarily ceased in overwhelming awe. The walls displayed extraordinary murals that seemed to emanate their own supernatural luminescence, depicting elaborate scenes of ritualistic ceremony and mystical observance, featuring entities that possessed an almost-human appearance yet remained distinctly otherworldly, chronicling events that belonged to no terrestrial history she had ever encountered in her scholarly pursuits.
+
+At the chamber's sacred epicenter stood an ornate pedestal of impossible antiquity, and upon its consecrated surface...
+
+Elena's hand quivered with supernatural anticipation as she extended her trembling fingers toward the mystical artifact that had awaited this precise moment, perhaps across multiple centuries, perhaps specifically for her destined arrival.`;
 
   const currentContent = isAIContent ? aiEnhancedContent : originalContent;
 
   useEffect(() => {
-    // Find book by ID
     const foundBook = dummyBooks.find(b => b.id === bookId);
     if (foundBook) {
       setBook(foundBook);
       setTotalPages(foundBook.pages || 100);
     }
+
+    // Reading time tracker
+    const interval = setInterval(() => {
+      setReadingTime(prev => prev + 1);
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
   }, [bookId]);
+
+  useEffect(() => {
+    // Hide status bar for immersive reading
+    StatusBar.setHidden(true);
+    return () => StatusBar.setHidden(false);
+  }, []);
 
   if (!book) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.center}>
-          <Text>Book not found</Text>
-        </View>
-      </SafeAreaView>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={[AppTheme.colors.background, AppTheme.colors.surface]}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.errorContainer}>
+            <Ionicons name="book-outline" size={64} color={AppTheme.colors.textTertiary} />
+            <Text style={styles.errorTitle}>Book Not Found</Text>
+            <TouchableOpacity 
+              style={styles.errorButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.errorButtonText}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </View>
     );
   }
 
   const progress = (currentPage / totalPages) * 100;
+
+  const toggleMenu = () => {
+    setIsMenuVisible(!isMenuVisible);
+  };
+
+  const adjustFontSize = (change: number) => {
+    setFontSize(Math.max(14, Math.min(24, fontSize + change)));
+  };
 
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -125,248 +209,446 @@ That fateful day taught me that certain infections resist all cures—they can o
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={[AppTheme.colors.background, AppTheme.colors.surface]}
+        style={StyleSheet.absoluteFillObject}
+      />
+      
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header - Hidden by default, show on tap */}
+        {isMenuVisible && (
+          <View style={styles.header}>
+            <View style={styles.headerTop}>
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={() => router.back()}
+              >
+                <Ionicons name="arrow-back" size={20} color={AppTheme.colors.textPrimary} />
+              </TouchableOpacity>
+              
+              <View style={styles.headerInfo}>
+                <Text style={styles.bookTitle} numberOfLines={1}>
+                  {book.title}
+                </Text>
+                <Text style={styles.chapterInfo}>
+                  Chapter 1 • {Math.floor((totalPages - currentPage) * 0.5)} min left
+                </Text>
+              </View>
+
+              <View style={styles.headerActions}>
+                <TouchableOpacity 
+                  style={styles.headerButton}
+                  onPress={() => adjustFontSize(-1)}
+                >
+                  <Text style={styles.fontButtonText}>A⁻</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.headerButton}
+                  onPress={() => adjustFontSize(1)}
+                >
+                  <Text style={styles.fontButtonText}>A⁺</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Progress Bar */}
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBar}>
+                <LinearGradient
+                  colors={[AppTheme.colors.primary, '#4F46E5']}
+                  style={[styles.progressFill, { width: `${progress}%` }]}
+                />
+              </View>
+              <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Reading Mode Toggle */}
+        {isMenuVisible && (
+          <View style={styles.modeToggleContainer}>
+            <View style={styles.modeToggle}>
+              <TouchableOpacity
+                style={[styles.modeButton, !isAIContent && styles.modeButtonActive]}
+                onPress={() => setIsAIContent(false)}
+              >
+                <Ionicons 
+                  name="document-text-outline" 
+                  size={16} 
+                  color={!isAIContent ? AppTheme.colors.primary : AppTheme.colors.textTertiary} 
+                />
+                <Text style={[
+                  styles.modeText, 
+                  !isAIContent && styles.modeTextActive
+                ]}>
+                  Original
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.modeButton, isAIContent && styles.modeButtonActive]}
+                onPress={() => setIsAIContent(true)}
+              >
+                <Ionicons 
+                  name="sparkles" 
+                  size={16} 
+                  color={isAIContent ? AppTheme.colors.warning : AppTheme.colors.textTertiary} 
+                />
+                <Text style={[
+                  styles.modeText, 
+                  isAIContent && styles.modeTextActive
+                ]}>
+                  AI Enhanced
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Reading Content */}
+        <TouchableOpacity 
+          style={styles.contentContainer} 
+          activeOpacity={1}
+          onPress={toggleMenu}
         >
-          <Ionicons name="arrow-back" size={24} color="#1f2937" />
-        </TouchableOpacity>
-        
-        <View style={styles.headerInfo}>
-          <Text style={styles.bookTitle} numberOfLines={1}>
-            {book.title}
-          </Text>
-          <Text style={styles.timeLeft}>20 mins left in Chapter</Text>
-        </View>
-
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.fontButton} onPress={() => setFontSize(Math.max(12, fontSize - 2))}>
-            <Text style={styles.fontButtonText}>A-</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.fontButton} onPress={() => setFontSize(Math.min(24, fontSize + 2))}>
-            <Text style={styles.fontButtonText}>A+</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
-        </View>
-        <Text style={styles.progressText}>{Math.round(progress)}%</Text>
-      </View>
-
-      {/* Content Toggle */}
-      <View style={styles.contentToggle}>
-        <TouchableOpacity
-          style={[styles.toggleOption, !isAIContent && styles.toggleOptionActive]}
-          onPress={() => setIsAIContent(false)}
-        >
-          <Ionicons name="document-text-outline" size={16} color={!isAIContent ? '#8b5cf6' : '#9ca3af'} />
-          <Text style={[styles.toggleText, !isAIContent && styles.toggleTextActive]}>
-            Original
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.toggleOption, isAIContent && styles.toggleOptionActive]}
-          onPress={() => setIsAIContent(true)}
-        >
-          <Ionicons name="sparkles" size={16} color={isAIContent ? '#8b5cf6' : '#9ca3af'} />
-          <Text style={[styles.toggleText, isAIContent && styles.toggleTextActive]}>
-            AI Enhanced
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Book Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.contentText, { fontSize }]}>
-          {currentContent}
-        </Text>
-      </ScrollView>
-
-      {/* Navigation */}
-      <View style={styles.navigation}>
-        <TouchableOpacity
-          style={[styles.navButton, currentPage === 1 && styles.navButtonDisabled]}
-          onPress={previousPage}
-          disabled={currentPage === 1}
-        >
-          <Text style={styles.navButtonText}>Previous</Text>
+          <ScrollView 
+            style={styles.contentScroll} 
+            contentContainerStyle={styles.contentPadding}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={[styles.contentText, { fontSize, lineHeight: fontSize * 1.6 }]}>
+              {currentContent}
+            </Text>
+            <View style={styles.contentBottom} />
+          </ScrollView>
         </TouchableOpacity>
 
-        <Text style={styles.pageInfo}>
-          Page {currentPage} of {totalPages}
-        </Text>
+        {/* Bottom Navigation */}
+        {isMenuVisible && (
+          <View style={styles.bottomNav}>
+            <TouchableOpacity
+              style={[styles.navButton, currentPage === 1 && styles.navButtonDisabled]}
+              onPress={previousPage}
+              disabled={currentPage === 1}
+            >
+              <Ionicons 
+                name="chevron-back" 
+                size={20} 
+                color={currentPage === 1 ? AppTheme.colors.textTertiary : AppTheme.colors.textPrimary} 
+              />
+              <Text style={[
+                styles.navButtonText,
+                currentPage === 1 && styles.navButtonTextDisabled
+              ]}>
+                Previous
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.navButton, currentPage === totalPages && styles.navButtonDisabled]}
-          onPress={nextPage}
-          disabled={currentPage === totalPages}
-        >
-          <Text style={styles.navButtonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+            <View style={styles.pageIndicator}>
+              <Text style={styles.pageText}>
+                {currentPage} / {totalPages}
+              </Text>
+              <Text style={styles.readingTime}>
+                {readingTime}m read
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.navButton, currentPage === totalPages && styles.navButtonDisabled]}
+              onPress={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              <Text style={[
+                styles.navButtonText,
+                currentPage === totalPages && styles.navButtonTextDisabled
+              ]}>
+                Next
+              </Text>
+              <Ionicons 
+                name="chevron-forward" 
+                size={20} 
+                color={currentPage === totalPages ? AppTheme.colors.textTertiary : AppTheme.colors.textPrimary} 
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Reading Settings Panel */}
+        {isMenuVisible && (
+          <View style={styles.settingsPanel}>
+            <TouchableOpacity style={styles.settingButton}>
+              <Ionicons name="bookmark-outline" size={20} color={AppTheme.colors.textSecondary} />
+              <Text style={styles.settingButtonText}>Bookmark</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.settingButton}>
+              <Ionicons name="chatbubble-outline" size={20} color={AppTheme.colors.textSecondary} />
+              <Text style={styles.settingButtonText}>Notes</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.settingButton}>
+              <Ionicons name="share-outline" size={20} color={AppTheme.colors.textSecondary} />
+              <Text style={styles.settingButtonText}>Share</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.settingButton}>
+              <Ionicons name="settings-outline" size={20} color={AppTheme.colors.textSecondary} />
+              <Text style={styles.settingButtonText}>Settings</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
-  center: {
+  
+  safeArea: {
+    flex: 1,
+  },
+
+  // Error State
+  errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: AppTheme.spacing.xl,
   },
+  
+  errorTitle: {
+    ...AppTheme.typography.title,
+    color: AppTheme.colors.textPrimary,
+    marginTop: AppTheme.spacing.lg,
+    marginBottom: AppTheme.spacing.xl,
+  },
+  
+  errorButton: {
+    backgroundColor: AppTheme.colors.primary,
+    borderRadius: AppTheme.borderRadius.md,
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingVertical: AppTheme.spacing.md,
+  },
+  
+  errorButtonText: {
+    ...AppTheme.typography.callout,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+
+  // Header
   header: {
+    backgroundColor: AppTheme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: AppTheme.colors.border,
+  },
+  
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingVertical: AppTheme.spacing.md,
   },
-  backButton: {
+  
+  headerButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: AppTheme.colors.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  
   headerInfo: {
     flex: 1,
-    marginLeft: 16,
+    marginHorizontal: AppTheme.spacing.md,
   },
+  
   bookTitle: {
-    fontSize: 16,
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textPrimary,
     fontWeight: '600',
-    color: '#1f2937',
   },
-  timeLeft: {
-    fontSize: 12,
-    color: '#6b7280',
+  
+  chapterInfo: {
+    ...AppTheme.typography.caption,
+    color: AppTheme.colors.textSecondary,
     marginTop: 2,
   },
+  
   headerActions: {
     flexDirection: 'row',
   },
-  fontButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
+  
   fontButtonText: {
-    fontSize: 12,
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textSecondary,
     fontWeight: '600',
-    color: '#6b7280',
   },
+
+  // Progress
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#f9fafb',
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingBottom: AppTheme.spacing.md,
   },
+  
   progressBar: {
     flex: 1,
     height: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: AppTheme.colors.surfaceLight,
     borderRadius: 2,
-    marginRight: 12,
+    marginRight: AppTheme.spacing.md,
+    overflow: 'hidden',
   },
+  
   progressFill: {
     height: '100%',
-    backgroundColor: '#8b5cf6',
     borderRadius: 2,
   },
+  
   progressText: {
-    fontSize: 12,
-    color: '#6b7280',
+    ...AppTheme.typography.caption,
+    color: AppTheme.colors.textSecondary,
     fontWeight: '500',
-    minWidth: 30,
+    minWidth: 35,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+
+  // Mode Toggle
+  modeToggleContainer: {
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingBottom: AppTheme.spacing.md,
   },
-  contentText: {
-    lineHeight: 28,
-    color: '#374151',
-    textAlign: 'justify',
-  },
-  navigation: {
+  
+  modeToggle: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-  },
-  navButton: {
-    backgroundColor: '#8b5cf6',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  navButtonDisabled: {
-    backgroundColor: '#e5e7eb',
-  },
-  navButtonText: {
-    color: '#fff',
-    fontWeight: '500',
-  },
-  contentToggle: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginVertical: 16,
-    backgroundColor: '#f9fafb',
-    borderRadius: 12,
+    backgroundColor: AppTheme.colors.surfaceLight,
+    borderRadius: AppTheme.borderRadius.lg,
     padding: 4,
   },
-  toggleOption: {
+  
+  modeButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: AppTheme.spacing.sm,
+    borderRadius: AppTheme.borderRadius.md,
   },
-  toggleOptionActive: {
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  
+  modeButtonActive: {
+    backgroundColor: AppTheme.colors.surface,
   },
-  toggleText: {
-    fontSize: 14,
+  
+  modeText: {
+    ...AppTheme.typography.subhead,
+    color: AppTheme.colors.textTertiary,
     fontWeight: '500',
-    color: '#9ca3af',
-    marginLeft: 6,
+    marginLeft: AppTheme.spacing.sm,
   },
-  pageInfo: {
-    fontSize: 14,
-    color: '#6b7280',
+  
+  modeTextActive: {
+    color: AppTheme.colors.textPrimary,
+  },
+
+  // Content
+  contentContainer: {
+    flex: 1,
+  },
+  
+  contentScroll: {
+    flex: 1,
+  },
+  
+  contentPadding: {
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingVertical: AppTheme.spacing.xl,
+  },
+  
+  contentText: {
+    color: AppTheme.colors.textSecondary,
+    textAlign: 'justify',
+    fontFamily: 'Georgia', // Better reading font
+  },
+  
+  contentBottom: {
+    height: 100,
+  },
+
+  // Bottom Navigation
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingVertical: AppTheme.spacing.md,
+    backgroundColor: AppTheme.colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: AppTheme.colors.border,
+  },
+  
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: AppTheme.colors.surfaceLight,
+    borderRadius: AppTheme.borderRadius.md,
+    paddingHorizontal: AppTheme.spacing.md,
+    paddingVertical: AppTheme.spacing.sm,
+  },
+  
+  navButtonDisabled: {
+    opacity: 0.5,
+  },
+  
+  navButtonText: {
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textPrimary,
     fontWeight: '500',
+    marginHorizontal: AppTheme.spacing.sm,
+  },
+  
+  navButtonTextDisabled: {
+    color: AppTheme.colors.textTertiary,
+  },
+  
+  pageIndicator: {
+    alignItems: 'center',
+  },
+  
+  pageText: {
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textPrimary,
+    fontWeight: '600',
+  },
+  
+  readingTime: {
+    ...AppTheme.typography.caption,
+    color: AppTheme.colors.textTertiary,
+    marginTop: 2,
+  },
+
+  // Settings Panel
+  settingsPanel: {
+    flexDirection: 'row',
+    backgroundColor: AppTheme.colors.surface,
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingBottom: AppTheme.spacing.lg,
+    justifyContent: 'space-around',
+  },
+  
+  settingButton: {
+    alignItems: 'center',
+    padding: AppTheme.spacing.sm,
+  },
+  
+  settingButtonText: {
+    ...AppTheme.typography.caption,
+    color: AppTheme.colors.textSecondary,
+    marginTop: 4,
   },
 });

@@ -1,4 +1,4 @@
-// app/(tabs)/profile.tsx
+// app/(tabs)/profile.tsx - Professional & Clean Design
 import React, { useState } from 'react';
 import {
   View,
@@ -10,8 +10,56 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+
+// Clean Design System - Professional & Structured
+const AppTheme = {
+  colors: {
+    background: '#1B1B1F',
+    surface: '#2A2A2E',
+    surfaceLight: '#35353A',
+    
+    primary: '#007AFF',
+    success: '#34C759',
+    warning: '#FF9500',
+    danger: '#FF3B30',
+    
+    textPrimary: '#FFFFFF',
+    textSecondary: '#AEAEB2',
+    textTertiary: '#8E8E93',
+    
+    border: '#38383A',
+    borderLight: '#48484A',
+  },
+  
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+  },
+  
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+  },
+  
+  typography: {
+    largeTitle: { fontSize: 34, fontWeight: '700' },
+    title: { fontSize: 28, fontWeight: '600' },
+    headline: { fontSize: 20, fontWeight: '600' },
+    body: { fontSize: 17, fontWeight: '400' },
+    callout: { fontSize: 16, fontWeight: '400' },
+    subhead: { fontSize: 15, fontWeight: '400' },
+    footnote: { fontSize: 13, fontWeight: '400' },
+    caption: { fontSize: 12, fontWeight: '400' },
+  },
+};
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -26,306 +74,433 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      'Sign Out',
+      'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Logout',
+          text: 'Sign Out',
           style: 'destructive',
-          onPress: async () => {
-            // Handle logout logic here
-            console.log('Logging out...');
-          },
+          onPress: () => console.log('Signing out...'),
         },
       ]
     );
   };
 
   const stats = [
-    { label: 'Books Read', value: user.booksRead, icon: 'book' },
-    { label: 'Reading Streak', value: `${user.readingStreak} days`, icon: 'flame' },
-    { label: 'Reading Time', value: user.totalReadingTime, icon: 'time' },
+    { label: 'Books Read', value: user.booksRead.toString(), icon: 'book-outline' },
+    { label: 'Day Streak', value: user.readingStreak.toString(), icon: 'flame-outline' },
+    { label: 'Reading Time', value: user.totalReadingTime, icon: 'time-outline' },
   ];
 
-  const menuItems = [
-    { title: 'Reading Preferences', icon: 'settings-outline', color: '#8b5cf6' },
-    { title: 'Download Settings', icon: 'download-outline', color: '#10b981' },
-    { title: 'Notifications', icon: 'notifications-outline', color: '#f59e0b' },
-    { title: 'Privacy & Security', icon: 'shield-checkmark-outline', color: '#ef4444' },
-    { title: 'Help & Support', icon: 'help-circle-outline', color: '#3b82f6' },
-    { title: 'About', icon: 'information-circle-outline', color: '#6b7280' },
+  const menuSections = [
+    {
+      title: 'Preferences',
+      items: [
+        { title: 'Reading Settings', icon: 'settings-outline', description: 'Font size, themes, display' },
+        { title: 'Notifications', icon: 'notifications-outline', description: 'Reading reminders' },
+        { title: 'Downloads', icon: 'download-outline', description: 'Offline content' },
+      ]
+    },
+    {
+      title: 'Account',
+      items: [
+        { title: 'Privacy & Security', icon: 'shield-checkmark-outline', description: 'Account protection' },
+        { title: 'Subscription', icon: 'card-outline', description: 'Premium features' },
+        { title: 'Storage', icon: 'server-outline', description: 'Library sync' },
+      ]
+    },
+    {
+      title: 'Support',
+      items: [
+        { title: 'Help Center', icon: 'help-circle-outline', description: 'FAQ and guides' },
+        { title: 'Contact Support', icon: 'mail-outline', description: 'Get help' },
+        { title: 'About GoBooks', icon: 'information-circle-outline', description: 'App information' },
+      ]
+    }
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity style={styles.editButton}>
-            <Ionicons name="create-outline" size={20} color="#8b5cf6" />
-          </TouchableOpacity>
-        </View>
-
-        {/* User Info */}
-        <View style={styles.userSection}>
-          <View style={styles.avatarContainer}>
-            {user.avatar ? (
-              <Image source={{ uri: user.avatar }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarText}>{user.name.charAt(0)}</Text>
-              </View>
-            )}
-            <TouchableOpacity style={styles.cameraButton}>
-              <Ionicons name="camera" size={16} color="#fff" />
+    <View style={styles.container}>
+      <LinearGradient
+        colors={[AppTheme.colors.background, AppTheme.colors.surface, AppTheme.colors.background]}
+        style={StyleSheet.absoluteFillObject}
+      />
+      
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Profile</Text>
+            <TouchableOpacity style={styles.editButton}>
+              <Ionicons name="create-outline" size={22} color={AppTheme.colors.primary} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.userEmail}>{user.email}</Text>
-        </View>
 
-        {/* Stats */}
-        <View style={styles.statsContainer}>
-          {stats.map((stat, index) => (
-            <View key={index} style={styles.statItem}>
-              <View style={styles.statIconContainer}>
-                <Ionicons name={stat.icon as any} size={20} color="#8b5cf6" />
+          {/* User Section */}
+          <View style={styles.userSection}>
+            <View style={styles.userCard}>
+              <View style={styles.avatarContainer}>
+                {user.avatar ? (
+                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                ) : (
+                  <View style={styles.avatarPlaceholder}>
+                    <Text style={styles.avatarText}>{user.name.charAt(0)}</Text>
+                  </View>
+                )}
               </View>
-              <Text style={styles.statValue}>{stat.value}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Achievement Badge */}
-        <View style={styles.achievementSection}>
-          <View style={styles.achievementBadge}>
-            <Ionicons name="trophy" size={24} color="#f59e0b" />
-            <View style={styles.achievementText}>
-              <Text style={styles.achievementTitle}>Reading Champion</Text>
-              <Text style={styles.achievementSubtitle}>Read 20+ books this year</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Menu Items */}
-        <View style={styles.menuSection}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem}>
-              <View style={styles.menuLeft}>
-                <View style={[styles.menuIconContainer, { backgroundColor: `${item.color}20` }]}>
-                  <Ionicons name={item.icon as any} size={20} color={item.color} />
+              
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>{user.name}</Text>
+                <Text style={styles.userEmail}>{user.email}</Text>
+                <View style={styles.premiumBadge}>
+                  <Ionicons name="star" size={14} color={AppTheme.colors.warning} />
+                  <Text style={styles.premiumText}>Premium</Text>
                 </View>
-                <Text style={styles.menuTitle}>{item.title}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
-            </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Stats Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reading Statistics</Text>
+            <View style={styles.statsContainer}>
+              {stats.map((stat, index) => (
+                <View key={index} style={styles.statItem}>
+                  <View style={styles.statIcon}>
+                    <Ionicons name={stat.icon as any} size={24} color={AppTheme.colors.primary} />
+                  </View>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Achievement */}
+          <View style={styles.section}>
+            <View style={styles.achievementCard}>
+              <View style={styles.achievementIcon}>
+                <Ionicons name="trophy" size={24} color={AppTheme.colors.warning} />
+              </View>
+              <View style={styles.achievementContent}>
+                <Text style={styles.achievementTitle}>Reading Champion</Text>
+                <Text style={styles.achievementDescription}>You've read 20+ books this year</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={AppTheme.colors.textTertiary} />
+            </View>
+          </View>
+
+          {/* Menu Sections */}
+          {menuSections.map((section, sectionIndex) => (
+            <View key={sectionIndex} style={styles.section}>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <View style={styles.menuCard}>
+                {section.items.map((item, itemIndex) => (
+                  <TouchableOpacity 
+                    key={itemIndex} 
+                    style={[
+                      styles.menuItem,
+                      itemIndex < section.items.length - 1 && styles.menuItemBorder
+                    ]}
+                  >
+                    <View style={styles.menuLeft}>
+                      <View style={styles.menuIcon}>
+                        <Ionicons name={item.icon as any} size={22} color={AppTheme.colors.textSecondary} />
+                      </View>
+                      <View style={styles.menuText}>
+                        <Text style={styles.menuTitle}>{item.title}</Text>
+                        <Text style={styles.menuDescription}>{item.description}</Text>
+                      </View>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={AppTheme.colors.textTertiary} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
           ))}
-        </View>
 
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={20} color="#fff" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
+          {/* Sign Out */}
+          <View style={styles.section}>
+            <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
+              <Ionicons name="log-out-outline" size={20} color={AppTheme.colors.danger} />
+              <Text style={styles.signOutText}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Version Info */}
-        <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>GoBooks v1.0.0</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>GoBooks v1.0.0</Text>
+          </View>
+
+          <View style={styles.bottomSpacing} />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
+  
+  safeArea: {
+    flex: 1,
+  },
+
+  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingHorizontal: AppTheme.spacing.lg,
+    paddingVertical: AppTheme.spacing.md,
   },
+  
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    ...AppTheme.typography.largeTitle,
+    color: AppTheme.colors.textPrimary,
   },
+  
   editButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: AppTheme.colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  // User Section
   userSection: {
+    paddingHorizontal: AppTheme.spacing.lg,
+    marginBottom: AppTheme.spacing.xl,
+  },
+  
+  userCard: {
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.borderRadius.lg,
+    padding: AppTheme.spacing.lg,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 32,
   },
+  
   avatarContainer: {
-    position: 'relative',
-    marginBottom: 16,
+    marginRight: AppTheme.spacing.lg,
   },
+  
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
   },
+  
   avatarPlaceholder: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#8b5cf6',
+    backgroundColor: AppTheme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  
   avatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
+    ...AppTheme.typography.title,
+    color: '#FFFFFF',
   },
-  cameraButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#8b5cf6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
+  
+  userInfo: {
+    flex: 1,
   },
+  
   userName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
+    ...AppTheme.typography.title,
+    color: AppTheme.colors.textPrimary,
     marginBottom: 4,
   },
+  
   userEmail: {
-    fontSize: 14,
-    color: '#6b7280',
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textSecondary,
+    marginBottom: AppTheme.spacing.sm,
   },
-  statsContainer: {
+  
+  premiumBadge: {
     flexDirection: 'row',
-    backgroundColor: '#f9fafb',
-    marginHorizontal: 20,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
+    alignItems: 'center',
+    backgroundColor: AppTheme.colors.surfaceLight,
+    paddingHorizontal: AppTheme.spacing.sm,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
   },
+  
+  premiumText: {
+    ...AppTheme.typography.caption,
+    color: AppTheme.colors.warning,
+    marginLeft: 4,
+    fontWeight: '600',
+  },
+
+  // Section
+  section: {
+    paddingHorizontal: AppTheme.spacing.lg,
+    marginBottom: AppTheme.spacing.xl,
+  },
+  
+  sectionTitle: {
+    ...AppTheme.typography.headline,
+    color: AppTheme.colors.textPrimary,
+    marginBottom: AppTheme.spacing.md,
+  },
+
+  // Stats
+  statsContainer: {
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.borderRadius.lg,
+    padding: AppTheme.spacing.lg,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  
   statItem: {
-    flex: 1,
     alignItems: 'center',
   },
-  statIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
+  
+  statIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: AppTheme.colors.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: AppTheme.spacing.sm,
   },
+  
   statValue: {
-    fontSize: 16,
+    ...AppTheme.typography.headline,
+    color: AppTheme.colors.textPrimary,
     fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 4,
   },
+  
   statLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-    textAlign: 'center',
+    ...AppTheme.typography.footnote,
+    color: AppTheme.colors.textSecondary,
+    marginTop: 4,
   },
-  achievementSection: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
-  },
-  achievementBadge: {
+
+  // Achievement
+  achievementCard: {
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.borderRadius.lg,
+    padding: AppTheme.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef3c7',
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#f59e0b',
   },
-  achievementText: {
-    marginLeft: 12,
+  
+  achievementIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: AppTheme.colors.surfaceLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: AppTheme.spacing.md,
+  },
+  
+  achievementContent: {
     flex: 1,
   },
+  
   achievementTitle: {
-    fontSize: 14,
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textPrimary,
     fontWeight: '600',
-    color: '#92400e',
   },
-  achievementSubtitle: {
-    fontSize: 12,
-    color: '#a16207',
+  
+  achievementDescription: {
+    ...AppTheme.typography.footnote,
+    color: AppTheme.colors.textSecondary,
     marginTop: 2,
   },
-  menuSection: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
+
+  // Menu
+  menuCard: {
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.borderRadius.lg,
+    overflow: 'hidden',
   },
+  
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    padding: AppTheme.spacing.lg,
   },
+  
+  menuItemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: AppTheme.colors.border,
+  },
+  
   menuLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-  menuIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+  
+  menuIcon: {
+    width: 32,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+    marginRight: AppTheme.spacing.md,
   },
+  
+  menuText: {
+    flex: 1,
+  },
+  
   menuTitle: {
-    fontSize: 16,
-    color: '#1f2937',
-    fontWeight: '500',
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.textPrimary,
   },
-  logoutButton: {
+  
+  menuDescription: {
+    ...AppTheme.typography.footnote,
+    color: AppTheme.colors.textSecondary,
+    marginTop: 2,
+  },
+
+  // Sign Out
+  signOutButton: {
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.borderRadius.lg,
+    padding: AppTheme.spacing.lg,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ef4444',
-    marginHorizontal: 20,
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 24,
-  },
-  logoutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  versionContainer: {
     alignItems: 'center',
-    paddingBottom: 20,
   },
-  versionText: {
-    fontSize: 12,
-    color: '#9ca3af',
+  
+  signOutText: {
+    ...AppTheme.typography.callout,
+    color: AppTheme.colors.danger,
+    marginLeft: AppTheme.spacing.sm,
+    fontWeight: '600',
+  },
+
+  // Footer
+  footer: {
+    alignItems: 'center',
+    paddingHorizontal: AppTheme.spacing.lg,
+  },
+  
+  footerText: {
+    ...AppTheme.typography.footnote,
+    color: AppTheme.colors.textTertiary,
+  },
+  
+  bottomSpacing: {
+    height: 80,
   },
 });

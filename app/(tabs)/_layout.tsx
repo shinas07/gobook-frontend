@@ -1,13 +1,26 @@
-// app/(tabs)/_layout.tsx
+// app/(tabs)/_layout.tsx - Professional Dark Theme
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 
 import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+
+// Same theme colors as other pages
+const AppTheme = {
+  colors: {
+    background: '#1B1B1F',
+    surface: '#2A2A2E',
+    surfaceLight: '#35353A',
+    primary: '#007AFF',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#AEAEB2',
+    textTertiary: '#8E8E93',
+    border: '#38383A',
+  },
+};
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -15,24 +28,29 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#8b5cf6',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: AppTheme.colors.primary,
+        tabBarInactiveTintColor: AppTheme.colors.textTertiary,
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: AppTheme.colors.surface,
           borderTopWidth: 1,
-          borderTopColor: '#f0f0f0',
-          height: 80,
-          paddingBottom: 20,
+          borderTopColor: AppTheme.colors.border,
+          height: 85,
+          paddingBottom: 25,
           paddingTop: 10,
+          paddingHorizontal: 10,
           ...Platform.select({
             ios: {
               position: 'absolute',
             },
             default: {},
           }),
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginTop: 4,
         },
       }}>
       <Tabs.Screen
